@@ -8,6 +8,8 @@ public class TestEnemy : MonoBehaviour
     private Vector3 Velocity;
     public Transform target;
     private Rigidbody rb;
+    public PlayerController playerController;
+
     // Start is called before the first frame update
     void Start()
     {
