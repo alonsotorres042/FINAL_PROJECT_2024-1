@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -52,6 +51,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
+        Cursor.visible = false;
     }
 
     void FixedUpdate()
@@ -64,14 +64,20 @@ public class PlayerController : MonoBehaviour
         }
 
         //MOVEMENT
-        if(Direction.z > 0f)
+
+        //PREVIOUS MOVEMENT SETTINGS
+        /*if(Direction.z > 0f)
         {
             _myRB.velocity = transform.TransformDirection(Vector3.forward.x * Speed, _myRB.velocity.y, Vector3.forward.z * Speed);
         }
         else if(Direction.z < 0f)
         {
             _myRB.velocity = transform.TransformDirection(Vector3.back.x * Speed, _myRB.velocity.y, Vector3.back.z * Speed);
-        }
+        }*/
+
+        //CURRENT MOVEMENT SETTINGS
+        _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Vector3.forward).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Vector3.forward).z * Speed);
+
 
         //ROTATION
         if (Direction.x > 0f)
