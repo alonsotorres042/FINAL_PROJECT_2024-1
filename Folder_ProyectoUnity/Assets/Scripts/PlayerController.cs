@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 Direction;
 
     //ROTATION
-    
+    [SerializeField] private float RotationSpeed;
 
     //JUMPING
     private int CurrentJumps;
@@ -46,24 +46,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform AimObject;
 
     //SHOOTING
+    private bool IsShooting;
+    //private bool CanShoot;
     [SerializeField] private float BulletSpeed;
     [SerializeField] private GameObject BulletSpawner;
     [SerializeField] private GameObject Bullet;
-
-    // Start is called before the first frame update
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-    }
-    private void OnEnable()
-    {
-        _eventManager.ShotEvent += SpawnBullet;
-    }
-    private void OnDisable()
-    {
-        _eventManager.ShotEvent -= SpawnBullet;
+        //CanShoot = true;
+        IsShooting = false;
+        StartCoroutine(SpawnBullets());
     }
     void FixedUpdate()
     {
@@ -75,10 +70,16 @@ public class PlayerController : MonoBehaviour
         }
 
         //MOVEMENT
-        _myRB.velocity = new Vector3(Direction.x * Speed, _myRB.velocity.y, Direction.z * Speed);
+        if(Direction != Vector3.zero)
+        {
+            _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Direction).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Direction).z * Speed);
+        }
 
         //ROTATION
-
+        if(Direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Direction).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Direction).z)), RotationSpeed * Time.deltaTime);
+        }
 
         //JUMP
         if (Physics.Raycast(transform.position, Vector3.down, out JumpHit, JumpRayLenght, JumpLayerMask))  
@@ -123,10 +124,16 @@ public class PlayerController : MonoBehaviour
         MousePositionOnScreen = context.ReadValue<Vector2>();
         MousePositionOnWorld = Camera.main.ScreenToWorldPoint(MousePositionOnScreen);
     }
-    public void SpawnBullet()
+    public void OnShoot(InputAction.CallbackContext context)
     {
-        GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, Quaternion.identity);
-        CurrentBullet.GetComponent<Rigidbody>().velocity = (AimObject.position - CurrentBullet.transform.position).normalized * BulletSpeed;
+        if (context.performed)
+        {
+            IsShooting = true;
+        }
+        else if (context.canceled)
+        {
+            IsShooting = false;
+        }
     }
     public IEnumerator ResetRayCast()
     {
@@ -134,5 +141,18 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         JumpRayLenght = 2;
         StopCoroutine(ResetRayCast());
+    }
+    public IEnumerator SpawnBullets()
+    {
+        while (true)
+        {
+            if (IsShooting == true)
+            {
+                GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, transform.rotation);
+                CurrentBullet.GetComponent<Rigidbody>().velocity = (AimObject.position - BulletSpawner.transform.position).normalized * BulletSpeed;
+                yield return new WaitForSeconds(0.1f);
+            }
+            yield return null;
+        }
     }
 }

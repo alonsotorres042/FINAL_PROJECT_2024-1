@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,13 +11,5 @@ public class EventManager : MonoBehaviour
     [SerializeField] private PlayerController Player;
 
     //EVENTS
-    public event Action ShotEvent;
 
-    public void OnShoot(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            ShotEvent?.Invoke();
-        }
-    }
 }
