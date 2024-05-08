@@ -2,21 +2,26 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    //GENERAL
+    [SerializeField] private EventManager _eventManager;
+
     //COMPONENTS
     private Rigidbody _myRB;
 
     //MOVEMENT
     [SerializeField] private float Speed;
+    private Vector3 Direction;
 
     //ROTATION
-    [SerializeField] private float TurnSensitivity;
-    private Vector3 Direction;
+    
 
     //JUMPING
     private int CurrentJumps;
@@ -33,16 +38,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float DisplacementAmount;
 
     //AIM
-    [SerializeField] private float AimSpeed;
     [SerializeField] private Camera _camera;
     [SerializeField] private LayerMask AimLayerMask;
     RaycastHit AimHit;
     private Vector3 MousePositionOnScreen;
     private Vector3 MousePositionOnWorld;
-    private Vector3 AimDirection;
-    [SerializeField] private Transform Aim;
+    [SerializeField] private Transform AimObject;
 
-    //SHOOTING (ONLY FOR THE TESTING!)
+    //SHOOTING
     [SerializeField] private float BulletSpeed;
     [SerializeField] private GameObject BulletSpawner;
     [SerializeField] private GameObject Bullet;
@@ -51,9 +54,17 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
-
+    private void OnEnable()
+    {
+        _eventManager.ShotEvent += SpawnBullet;
+    }
+    private void OnDisable()
+    {
+        _eventManager.ShotEvent -= SpawnBullet;
+    }
     void FixedUpdate()
     {
         //LEVITATION
@@ -64,30 +75,10 @@ public class PlayerController : MonoBehaviour
         }
 
         //MOVEMENT
-
-        //PREVIOUS MOVEMENT SETTINGS
-        /*if(Direction.z > 0f)
-        {
-            _myRB.velocity = transform.TransformDirection(Vector3.forward.x * Speed, _myRB.velocity.y, Vector3.forward.z * Speed);
-        }
-        else if(Direction.z < 0f)
-        {
-            _myRB.velocity = transform.TransformDirection(Vector3.back.x * Speed, _myRB.velocity.y, Vector3.back.z * Speed);
-        }*/
-
-        //CURRENT MOVEMENT SETTINGS
-        _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Vector3.forward).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Vector3.forward).z * Speed);
-
+        _myRB.velocity = new Vector3(Direction.x * Speed, _myRB.velocity.y, Direction.z * Speed);
 
         //ROTATION
-        if (Direction.x > 0f)
-        {
-            transform.rotation *= Quaternion.Euler(0, TurnSensitivity, 0);
-        }
-        else if (Direction.x < 0f)
-        {
-            transform.rotation *= Quaternion.Euler(0, -TurnSensitivity, 0);
-        }
+
 
         //JUMP
         if (Physics.Raycast(transform.position, Vector3.down, out JumpHit, JumpRayLenght, JumpLayerMask))  
@@ -105,10 +96,9 @@ public class PlayerController : MonoBehaviour
         Ray aim = _camera.ScreenPointToRay(MousePositionOnScreen);
         if(Physics.Raycast(aim, out AimHit, Mathf.Infinity, AimLayerMask))
         {
-            Aim.position = AimHit.point;
+            AimObject.position = AimHit.point;
         }
     }
-
     public void OnMovement(InputAction.CallbackContext context)
     {
         Direction = context.ReadValue<Vector3>();
@@ -133,13 +123,10 @@ public class PlayerController : MonoBehaviour
         MousePositionOnScreen = context.ReadValue<Vector2>();
         MousePositionOnWorld = Camera.main.ScreenToWorldPoint(MousePositionOnScreen);
     }
-    public void OnShoot(InputAction.CallbackContext context)
+    public void SpawnBullet()
     {
-        if(context.performed)
-        {
-            GameObject CurBullet = Instantiate(Bullet, BulletSpawner.transform.position, Quaternion.identity);
-            CurBullet.GetComponent<Rigidbody>().velocity = (Aim.position - CurBullet.transform.position).normalized * BulletSpeed;
-        }
+        GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, Quaternion.identity);
+        CurrentBullet.GetComponent<Rigidbody>().velocity = (AimObject.position - CurrentBullet.transform.position).normalized * BulletSpeed;
     }
     public IEnumerator ResetRayCast()
     {
