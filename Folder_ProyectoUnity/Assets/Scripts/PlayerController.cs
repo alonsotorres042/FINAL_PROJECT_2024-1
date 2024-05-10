@@ -1,9 +1,5 @@
 using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,7 +7,8 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     //GENERAL
-    [SerializeField] private EventManager _eventManager;
+    [SerializeField] private BulletDirection_SO bulletDirection_SO;
+    [SerializeField] private EventManager eventManager;
 
     //COMPONENTS
     private Rigidbody _myRB;
@@ -24,11 +21,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float RotationSpeed;
 
     //JUMPING
+    private bool CanJump;
     private int CurrentJumps;
     [SerializeField] private int MaxJumps;
     [SerializeField] private float JumpForce;
     [SerializeField] private float JumpRayLenght;
-    private bool CanJump;
     [SerializeField] private LayerMask JumpLayerMask;
     RaycastHit JumpHit;
 
@@ -39,22 +36,28 @@ public class PlayerController : MonoBehaviour
 
     //SHOOTING
     private bool IsShooting;
-    [SerializeField] private float BulletSpeed;
     [SerializeField] private GameObject BulletSpawner;
     [SerializeField] private GameObject Bullet;
+    private Vector3 BulletDirection;
+    public Vector3 _bulletDirection { get { return BulletDirection; } private set { } }
 
     //AIM
     private bool isAiming;
+    [SerializeField] private float CameraReincorporationSpeed;
+    [SerializeField] private float AimZoom;
     [SerializeField] private Camera _camera;
     [SerializeField] private LayerMask AimLayerMask;
     RaycastHit AimHit;
     private Vector3 MousePositionOnScreen;
     private Vector3 MousePositionOnWorld;
     [SerializeField] private Transform AimObject;
+    [SerializeField] private Transform CharacterLookAt;
     [SerializeField] private CinemachineFreeLook ThirdPersonCamera;
 
     //EXTERNAL PARTS
+    [SerializeField] private float LeftArmSpeed;
     [SerializeField] private GameObject LeftArm;
+    [SerializeField] private Transform LeftArmTargetPosition;
 
     void Start()
     {
@@ -83,14 +86,18 @@ public class PlayerController : MonoBehaviour
         //ROTATION
         if (isAiming)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Vector3.forward).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Vector3.forward).z)), RotationSpeed * Time.deltaTime);
-            ThirdPersonCamera.m_Lens.FieldOfView = Mathf.Lerp(ThirdPersonCamera.m_Lens.FieldOfView, 30f, 10f * Time.deltaTime);
+            LookAtCenter();
+            ThirdPersonCamera.m_Lens.FieldOfView = Mathf.Lerp(ThirdPersonCamera.m_Lens.FieldOfView, 50f - AimZoom, 10f * Time.deltaTime);
         }
         else
         {
-            if (Direction != Vector3.zero)
+            if (IsShooting)
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Direction).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Direction).z)), RotationSpeed * Time.deltaTime);
+                LookAtCenter();
+            }
+            else
+            {
+                LookAtDirection();
             }
             ThirdPersonCamera.m_Lens.FieldOfView = Mathf.Lerp(ThirdPersonCamera.m_Lens.FieldOfView, 50f, 10f * Time.deltaTime);
         }
@@ -107,22 +114,29 @@ public class PlayerController : MonoBehaviour
             Debug.DrawRay(transform.position, Vector3.down * JumpRayLenght, Color.white);
         }
 
-        //SHOT
-        if (IsShooting)
-        {
-            LeftArm.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 1f * Time.deltaTime);
-        }
-        else
-        {
-            LeftArm.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(90f, 0f, 0f)), 1f * Time.deltaTime);
-        }
-
         //AIM
+        CharacterLookAt.position = Vector3.Slerp(CharacterLookAt.position, transform.position, CameraReincorporationSpeed * Time.deltaTime);
+
         Ray aim = _camera.ScreenPointToRay(MousePositionOnScreen);
         if (Physics.Raycast(aim, out AimHit, Mathf.Infinity, AimLayerMask))
         {
             AimObject.position = AimHit.point;
         }
+
+        //======================== EXTERNAL PARTS =========================
+
+        // LEFTARM ROTATION
+        if (IsShooting == true)
+        {
+            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 10f * Time.deltaTime);
+        }
+        else if (IsShooting == false)
+        {
+            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(Vector3.down), 10f * Time.deltaTime);
+        }
+
+        //LEFT ARM POSITION
+        LeftArm.transform.position = Vector3.Slerp(LeftArm.transform.position, LeftArmTargetPosition.position, LeftArmSpeed * Time.deltaTime);
     }
     public void OnMovement(InputAction.CallbackContext context)
     {
@@ -154,6 +168,7 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             IsShooting = true;
+            BulletDirection = (AimObject.position - BulletSpawner.transform.position).normalized;
         }
         else if (context.canceled)
         {
@@ -185,11 +200,21 @@ public class PlayerController : MonoBehaviour
             if (IsShooting == true)
             {
                 GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, transform.rotation);
-                CurrentBullet.GetComponent<Rigidbody>().velocity = (AimObject.position - BulletSpawner.transform.position).normalized * BulletSpeed;
-                CurrentBullet.transform.LookAt(AimObject.position);
+                bulletDirection_SO.BulletDirection = (AimObject.position - BulletSpawner.transform.position).normalized;
                 yield return new WaitForSeconds(0.1f);
             }
             yield return null;
+        }
+    }
+    public void LookAtCenter()
+    {
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Vector3.forward).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Vector3.forward).z)), RotationSpeed * Time.deltaTime);
+    }
+    public void LookAtDirection()
+    {
+        if (Direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Direction).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Direction).z)), RotationSpeed * Time.deltaTime);
         }
     }
 }
