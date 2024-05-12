@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     //GENERAL
-    [SerializeField] private BulletDirection_SO bulletDirection_SO;
     [SerializeField] private EventManager eventManager;
 
     //COMPONENTS
@@ -36,10 +35,8 @@ public class PlayerController : MonoBehaviour
 
     //SHOOTING
     private bool IsShooting;
-    [SerializeField] private GameObject BulletSpawner;
+    [SerializeField] private Transform BulletSpawner;
     [SerializeField] private GameObject Bullet;
-    private Vector3 BulletDirection;
-    public Vector3 _bulletDirection { get { return BulletDirection; } private set { } }
 
     //AIM
     private bool isAiming;
@@ -58,6 +55,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float LeftArmSpeed;
     [SerializeField] private GameObject LeftArm;
     [SerializeField] private Transform LeftArmTargetPosition;
+
+    //PUBLIC GETTERS
+    public Vector3 _bulletDirection { get { return (AimObject.position - BulletSpawner.position).normalized; } private set { } }
+    public Transform _transform { get { return transform; } private set { } }
 
     void Start()
     {
@@ -80,7 +81,7 @@ public class PlayerController : MonoBehaviour
         //MOVEMENT
         if (Direction != Vector3.zero)
         {
-            _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Direction).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Direction).z * Speed);
+            _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Direction.normalized).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Direction.normalized).z * Speed);
         }
 
         //ROTATION
@@ -123,16 +124,16 @@ public class PlayerController : MonoBehaviour
             AimObject.position = AimHit.point;
         }
 
-        //======================== EXTERNAL PARTS =========================
+        //======================== EXTERNAL EXTREMITIES ========================//
 
         // LEFTARM ROTATION
         if (IsShooting == true)
         {
-            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 10f * Time.deltaTime);
+            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 30f  * Time.deltaTime);
         }
         else if (IsShooting == false)
         {
-            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(Vector3.down), 10f * Time.deltaTime);
+            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(Vector3.down), 20f * Time.deltaTime);
         }
 
         //LEFT ARM POSITION
@@ -168,7 +169,6 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             IsShooting = true;
-            BulletDirection = (AimObject.position - BulletSpawner.transform.position).normalized;
         }
         else if (context.canceled)
         {
@@ -200,15 +200,10 @@ public class PlayerController : MonoBehaviour
             if (IsShooting == true)
             {
                 GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, transform.rotation);
-                bulletDirection_SO.BulletDirection = (AimObject.position - BulletSpawner.transform.position).normalized;
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.33f);
             }
             yield return null;
         }
-    }
-    public void LookAtCenter()
-    {
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Vector3.forward).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Vector3.forward).z)), RotationSpeed * Time.deltaTime);
     }
     public void LookAtDirection()
     {
@@ -216,5 +211,9 @@ public class PlayerController : MonoBehaviour
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Direction).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Direction).z)), RotationSpeed * Time.deltaTime);
         }
+    }
+    public void LookAtCenter()
+    {
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Vector3.forward).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Vector3.forward).z)), RotationSpeed * Time.deltaTime);
     }
 }

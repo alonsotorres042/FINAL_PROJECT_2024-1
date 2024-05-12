@@ -13,10 +13,10 @@ GameObject:
   - component: {fileID: 6733884404248746523}
   - component: {fileID: 9214548488706592432}
   - component: {fileID: 8901133351706656176}
-  - component: {fileID: 426245353562181930}
+  - component: {fileID: 8547875593481983230}
   m_Layer: 3
   m_Name: Bullet
-  m_TagString: Untagged
+  m_TagString: PlayerBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -134,7 +134,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &426245353562181930
+--- !u!114 &8547875593481983230
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,8 +143,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8886571269655060746}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e777c1f9cbc9a8145ba68189147b53de, type: 3}
+  m_Script: {fileID: 11500000, guid: 356ae81590cef83418f42a3f31ecad38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletDirection_SO: {fileID: 11400000, guid: 35ddff9472d88f34a89389e69300a9d4, type: 2}
+  eventManagerData: {fileID: 11400000, guid: 7cebda5fe1d7cfe4982ea3786590e092, type: 2}
   Speed: 130
+  Damage: 5
+  bulletDirection_SO: {fileID: 11400000, guid: 35ddff9472d88f34a89389e69300a9d4, type: 2}
