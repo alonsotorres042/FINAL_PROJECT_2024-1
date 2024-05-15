@@ -7,6 +7,10 @@ public class EventManager : MonoBehaviour
     //SCRIPTABLE OBJECT
     public EventManagerData eventManagerData;
 
+    //TESTING
+    private GameObject SlerpTest;
+    private Transform TargetPosition;
+
     //LOCAL VARIABLES
     [SerializeField] private PlayerController Player;
 
@@ -23,6 +27,7 @@ public class EventManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //TESTNIG
         
     }
 }

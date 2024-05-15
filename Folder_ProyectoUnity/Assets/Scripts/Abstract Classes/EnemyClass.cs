@@ -12,6 +12,7 @@ public abstract class EnemyClass : MonoBehaviour
 
     //ESCENTIALS
     [SerializeField] protected float Life;
+    protected Transform AttackTarget;
 
     //MOVEMENT
     [SerializeField] protected float ChaseSpeed;
@@ -26,8 +27,12 @@ public abstract class EnemyClass : MonoBehaviour
     }
     protected void StartChasingPlayer()
     {
-        rb.velocity = Vector3.Slerp(rb.velocity, (eventManagerData.Player._transform.position - transform.position).normalized * ChaseSpeed, ChaseSpeed * Time.deltaTime);
+        rb.velocity = Vector3.Slerp(rb.velocity, (AttackTarget.position - transform.position).normalized * ChaseSpeed, ChaseSpeed * Time.deltaTime);
         transform.LookAt(eventManagerData.Player._transform);
+    }
+    protected void StartZChasingPlayer()
+    {
+
     }
     protected void StopChasingPlayer()
     {

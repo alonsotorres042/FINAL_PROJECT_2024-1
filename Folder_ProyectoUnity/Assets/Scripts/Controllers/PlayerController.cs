@@ -1,6 +1,6 @@
 using Cinemachine;
+using Cinemachine.Utility;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,10 +11,12 @@ public class PlayerController : MonoBehaviour
 
     //COMPONENTS
     private Rigidbody _myRB;
+    private LineRenderer _myLR;
 
     //MOVEMENT
     [SerializeField] private float Speed;
     private Vector3 Direction;
+    [SerializeField] private Transform RelativeMovement;
 
     //ROTATION
     [SerializeField] private float RotationSpeed;
@@ -39,8 +41,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject Bullet;
 
     //AIM
-    private bool isAiming;
-    [SerializeField] private float CameraReincorporationSpeed;
+    private bool IsAiming;
+    [SerializeField] private float CameraReincorporationTime;
     [SerializeField] private float AimZoom;
     [SerializeField] private Camera _camera;
     [SerializeField] private LayerMask AimLayerMask;
@@ -50,6 +52,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform AimObject;
     [SerializeField] private Transform CharacterLookAt;
     [SerializeField] private CinemachineFreeLook ThirdPersonCamera;
+    private Vector3 Velocity = Vector3.zero;
 
     //EXTERNAL PARTS
     [SerializeField] private float LeftArmSpeed;
@@ -63,29 +66,36 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
+        _myLR = GetComponent<LineRenderer>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         IsShooting = false;
-        isAiming = false;
+        IsAiming = false;
         StartCoroutine(SpawnBullets());
     }
     void FixedUpdate()
     {
         //LEVITATION
-        if (transform.position.y < Top)
+        /*if (transform.position.y < Top)
         {
             float displacementMultiplier = Mathf.Clamp01((Top - transform.position.y) / DepthFromPoint) * DisplacementAmount;
             _myRB.AddForce(new Vector3(0f, Mathf.Abs(Physics.gravity.y) * displacementMultiplier, 0f), ForceMode.Acceleration);
-        }
+        }*/
 
         //MOVEMENT
+        RelativeMovement.position = _camera.transform.position;
+        RelativeMovement.rotation = new Quaternion(0f, _camera.transform.rotation.y, 0f, _camera.transform.rotation.w);
         if (Direction != Vector3.zero)
         {
-            _myRB.velocity = new Vector3(_camera.transform.TransformDirection(Direction.normalized).x * Speed, _myRB.velocity.y, _camera.transform.TransformDirection(Direction.normalized).z * Speed);
+            _myRB.velocity = Vector3.Lerp(_myRB.velocity, new Vector3(RelativeMovement.TransformDirection(Direction.normalized).x * Speed, _myRB.velocity.y, RelativeMovement.TransformDirection(Direction.normalized).z * Speed), (RotationSpeed / 2) * Time.deltaTime);
+        }
+        else
+        {
+            _myRB.velocity = new Vector3(Mathf.Lerp(_myRB.velocity.x, 0f, (RotationSpeed / 5f) * Time.deltaTime), _myRB.velocity.y, Mathf.Lerp(_myRB.velocity.z, 0f, (RotationSpeed / 5f) * Time.deltaTime));
         }
 
         //ROTATION
-        if (isAiming)
+        if (IsAiming)
         {
             LookAtCenter();
             ThirdPersonCamera.m_Lens.FieldOfView = Mathf.Lerp(ThirdPersonCamera.m_Lens.FieldOfView, 50f - AimZoom, 10f * Time.deltaTime);
@@ -116,7 +126,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //AIM
-        CharacterLookAt.position = Vector3.Slerp(CharacterLookAt.position, transform.position, CameraReincorporationSpeed * Time.deltaTime);
+        CharacterLookAt.position = Vector3.SmoothDamp(CharacterLookAt.position, transform.position, ref Velocity, CameraReincorporationTime);
 
         Ray aim = _camera.ScreenPointToRay(MousePositionOnScreen);
         if (Physics.Raycast(aim, out AimHit, Mathf.Infinity, AimLayerMask))
@@ -179,11 +189,11 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            isAiming = true;
+            IsAiming = true;
         }
         else if (context.canceled)
         {
-            isAiming = false;
+            IsAiming = false;
         }
     }
     public IEnumerator ResetRayCast()

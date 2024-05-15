@@ -6,8 +6,8 @@ public class PlayerBulletController : BulletClass
 {
     void Start()
     {
-        MovementDirection = eventManagerData.Player._bulletDirection;
         rb = GetComponent<Rigidbody>();
+        MovementDirection = eventManagerData.Player._bulletDirection;
         rb.velocity =  MovementDirection * Speed;
         transform.rotation = Quaternion.LookRotation(MovementDirection);
     }
