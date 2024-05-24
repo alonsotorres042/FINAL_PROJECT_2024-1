@@ -39,19 +39,7 @@ public class MagnetismController : MonoBehaviour
         else
         {
             _myLR.SetPosition(1, _transform.position + (_transform.TransformDirection(Vector3.forward) * RayLenght));
-        }
-    }
-    public void Magnetism()
-    {
-        if (MagnetismForce != 0)
-        {
-            if (hit.transform.GetComponent<Rigidbody>())
-            {
-                hit.transform.GetComponent<Rigidbody>().velocity = (transform.position - hit.transform.position).normalized * MagnetismForce;
-                hit.transform.rotation = Quaternion.Lerp(hit.transform.rotation, Quaternion.LookRotation((transform.position - hit.transform.position).normalized), 4f * Time.deltaTime);
-            }
-            _myRB.velocity = (hit.point - transform.position).normalized * MagnetismForce;
-            _transform.rotation = Quaternion.Lerp(_transform.rotation, Quaternion.LookRotation((hit.point - _transform.position).normalized), 4f * Time.deltaTime);
+            _myRB.velocity = Vector3.Lerp(_myRB.velocity, Vector3.zero, 5f * Time.deltaTime);
         }
     }
     public void SetMaterial()
@@ -63,6 +51,18 @@ public class MagnetismController : MonoBehaviour
         else
         {
             _myLR.material = AttractionMaterial;
+        }
+    }
+    public void Magnetism()
+    {
+        if (MagnetismForce != 0)
+        {
+            if (hit.transform.GetComponent<Rigidbody>())
+            {
+                hit.transform.GetComponent<Rigidbody>().velocity = (transform.position - hit.transform.position).normalized * MagnetismForce;
+            }
+            _myRB.velocity = (hit.point - transform.position).normalized * MagnetismForce;
+            _transform.rotation = Quaternion.Lerp(_transform.rotation, Quaternion.LookRotation((hit.point - _transform.position).normalized), 4f * Time.deltaTime);
         }
     }
 }

@@ -28,11 +28,12 @@ public abstract class EnemyClass : MonoBehaviour
     protected void StartChasingPlayer()
     {
         rb.velocity = Vector3.Slerp(rb.velocity, (AttackTarget.position - transform.position).normalized * ChaseSpeed, ChaseSpeed * Time.deltaTime);
-        transform.LookAt(eventManagerData.Player._transform);
+        transform.LookAt(eventManagerData.Player.transform);
     }
-    protected void StartZChasingPlayer()
+    protected void XYChasingPlayer()
     {
-
+        rb.velocity = Vector3.Slerp(rb.velocity, new Vector3((AttackTarget.position - transform.position).normalized.x * ChaseSpeed, rb.velocity.y, (AttackTarget.position - transform.position).normalized.z * ChaseSpeed), ChaseSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3((AttackTarget.position - transform.position).x, transform.rotation.y, (AttackTarget.position - transform.position).z)), 5f * Time.deltaTime);
     }
     protected void StopChasingPlayer()
     {

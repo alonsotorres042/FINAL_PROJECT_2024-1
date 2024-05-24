@@ -33,6 +33,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Aim",
+                    "type": "Button",
+                    "id": "3fdd0042-13f0-45b9-92b1-e5dcef99274f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Shoot",
                     "type": "Button",
                     "id": "a30377fd-eb88-4374-b81a-ce5c8ee5ce7e",
@@ -42,9 +51,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Aim",
+                    "name": "Launch Explosive",
                     "type": "Button",
-                    "id": "3fdd0042-13f0-45b9-92b1-e5dcef99274f",
+                    "id": "f4bf14bd-abb0-4205-9875-adc9ab1f6642",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -148,6 +157,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6ff246f0-f99e-4a87-9193-c0ea480e80d8",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Launch Explosive",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

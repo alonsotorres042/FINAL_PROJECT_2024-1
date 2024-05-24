@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
 
     //COMPONENTS
     private Rigidbody _myRB;
-    private LineRenderer _myLR;
 
     //MOVEMENT
     [SerializeField] private float Speed;
@@ -38,7 +37,9 @@ public class PlayerController : MonoBehaviour
     //SHOOTING
     private bool IsShooting;
     [SerializeField] private Transform BulletSpawner;
+    [SerializeField] private Transform ProjectileSpawner;
     [SerializeField] private GameObject Bullet;
+    [SerializeField] private GameObject Explosive;
 
     //AIM
     private bool IsAiming;
@@ -66,7 +67,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
-        _myLR = GetComponent<LineRenderer>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         IsShooting = false;
@@ -174,6 +174,17 @@ public class PlayerController : MonoBehaviour
         MousePositionOnScreen = context.ReadValue<Vector2>();
         MousePositionOnWorld = Camera.main.ScreenToWorldPoint(MousePositionOnScreen);
     }
+    public void OnAim(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            IsAiming = true;
+        }
+        else if (context.canceled)
+        {
+            IsAiming = false;
+        }
+    }
     public void OnShoot(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -185,15 +196,11 @@ public class PlayerController : MonoBehaviour
             IsShooting = false;
         }
     }
-    public void OnAim(InputAction.CallbackContext context)
+    public void OnLaunchExplosive(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            IsAiming = true;
-        }
-        else if (context.canceled)
-        {
-            IsAiming = false;
+            Instantiate(Explosive, ProjectileSpawner.position, transform.rotation);
         }
     }
     public IEnumerator ResetRayCast()
