@@ -40,13 +40,21 @@ public class ProjectileController : BulletClass
         Collider[] colliders = Physics.OverlapSphere(transform.position, ExplosionRadius);
         for(int i = 0; i < colliders.Length; i++)
         {
-            if (colliders[i].tag != "PlayerBullet" && colliders[i].GetComponent<Rigidbody>() == true)
+            if (colliders[i].GetComponent<Rigidbody>() == true)
             {
                 Rigidbody rb = colliders[i].GetComponent<Rigidbody>();
                 rb.AddExplosionForce(ExplosionPower, transform.position, ExplosionRadius, ExplosionUpPower, ForceMode.Impulse);
                 if (colliders[i].GetComponent<EnemyClass>())
                 {
                     colliders[i].GetComponent<EnemyClass>().GetBulletDamage(Damage);
+                }
+                else if (colliders[i].GetComponent<PlayerController>())
+                {
+                    colliders[i].GetComponent<PlayerController>().GetDamage(Damage);
+                }
+                if (colliders[i].tag == "Boss")
+                {
+                    colliders[i].GetComponentInParent<EnemyClass>().GetBulletDamage(Damage);
                 }
             }
         }

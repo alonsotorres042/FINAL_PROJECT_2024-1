@@ -6,12 +6,13 @@ public class BasicHenchmanController : EnemyClass
 {
     void Start()
     {
+        CurrentLife = MaxLife;
         AttackTarget = eventManagerData.Player._transform;
         rb = GetComponent<Rigidbody>();
     }
     void Update()
     {
-        if(Life <= 0)
+        if(CurrentLife <= 0)
         {
             Death();
         }

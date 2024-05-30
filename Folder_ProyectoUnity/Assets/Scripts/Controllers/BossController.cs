@@ -6,26 +6,39 @@ using UnityEngine;
 
 public class BossController : EnemyClass
 {
+
+    [SerializeField] private Transform HenchmanSpawner;
     [SerializeField] private GameObject Henchman;
     [SerializeField] private GameObject Triceratops;
-    
+
+    void Awake()
+    {
+        CurrentLife = MaxLife;
+    }
     void Start()
     {
         AttackTarget = eventManagerData.Player._transform;
         rb = Triceratops.GetComponent<Rigidbody>();
         StartCoroutine(SpawnHenchmen());
     }
-
+    private void OnEnable()
+    {
+        eventManagerData._EventManager.Victory += BossDeath;
+    }
+    private void OnDisable()
+    {
+        eventManagerData._EventManager.Victory -= BossDeath;
+    }
     void FixedUpdate()
     {
-        XYChasingPlayer();
+        BossChasingPlayer();
     }
 
     public IEnumerator SpawnHenchmen()
     {
         while (true)
         {
-            Instantiate(Henchman, transform.position, Quaternion.identity);
+            Instantiate(Henchman, HenchmanSpawner.position, Quaternion.identity);
             yield return new WaitForSeconds(1f);
         }
     }

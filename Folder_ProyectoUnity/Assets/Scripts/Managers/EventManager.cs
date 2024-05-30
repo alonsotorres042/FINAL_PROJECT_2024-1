@@ -1,33 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {
-    //SCRIPTABLE OBJECT
+    //DATA
     public EventManagerData eventManagerData;
 
-    //TESTING
-    private GameObject SlerpTest;
-    private Transform TargetPosition;
+    //EVENTS
+    public event Action Victory;
 
     //LOCAL VARIABLES
     [SerializeField] private PlayerController Player;
+    [SerializeField] private BossController Triceratops;
 
     void Awake()
     {
+        eventManagerData._EventManager = this;
         eventManagerData.Player = Player;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-
+        eventManagerData.Triceratops = Triceratops;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //TESTNIG
-        
+        if(Triceratops._currentLife <= 0)
+        {
+            Victory?.Invoke();
+        }
     }
 }

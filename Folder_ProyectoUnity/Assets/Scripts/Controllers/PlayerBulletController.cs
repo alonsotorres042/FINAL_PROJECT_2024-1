@@ -17,6 +17,10 @@ public class PlayerBulletController : BulletClass
         {
             other.GetComponent<EnemyClass>().GetBulletDamage(Damage);
         }
+        if(other.tag == "Boss")
+        {
+            other.GetComponentInParent<EnemyClass>().GetBulletDamage(Damage);
+        }
         if (other.tag != "Player")
         {
             Destroy(gameObject);

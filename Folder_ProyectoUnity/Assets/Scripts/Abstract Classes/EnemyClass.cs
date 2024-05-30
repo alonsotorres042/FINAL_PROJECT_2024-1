@@ -11,7 +11,8 @@ public abstract class EnemyClass : MonoBehaviour
     protected Rigidbody rb;
 
     //ESCENTIALS
-    [SerializeField] protected float Life;
+    [SerializeField] protected float MaxLife;
+    protected float CurrentLife;
     protected Transform AttackTarget;
 
     //MOVEMENT
@@ -20,6 +21,10 @@ public abstract class EnemyClass : MonoBehaviour
     //DAMAGE
     protected float MeleeDamage;
     protected float BulletDamage;
+
+    //PUBLIC GETTERS / UI STUFF
+    public float _maxLife { get { return MaxLife; } private set { } }
+    public float _currentLife { get { return CurrentLife; } private set { } }
 
     protected IEnumerator Shot()
     {
@@ -30,9 +35,9 @@ public abstract class EnemyClass : MonoBehaviour
         rb.velocity = Vector3.Slerp(rb.velocity, (AttackTarget.position - transform.position).normalized * ChaseSpeed, ChaseSpeed * Time.deltaTime);
         transform.LookAt(eventManagerData.Player.transform);
     }
-    protected void XYChasingPlayer()
+    protected void BossChasingPlayer()
     {
-        rb.velocity = Vector3.Slerp(rb.velocity, new Vector3((AttackTarget.position - transform.position).normalized.x * ChaseSpeed, rb.velocity.y, (AttackTarget.position - transform.position).normalized.z * ChaseSpeed), ChaseSpeed * Time.deltaTime);
+        rb.velocity = Vector3.Slerp(rb.velocity, (AttackTarget.position - transform.position).normalized * ChaseSpeed, ChaseSpeed * Time.deltaTime);
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3((AttackTarget.position - transform.position).x, transform.rotation.y, (AttackTarget.position - transform.position).z)), 5f * Time.deltaTime);
     }
     protected void StopChasingPlayer()
@@ -40,12 +45,16 @@ public abstract class EnemyClass : MonoBehaviour
         rb.velocity = Vector3.zero;
         transform.rotation = Quaternion.identity;
     }
+    public void GetBulletDamage(float BulletDamage)
+    {
+        CurrentLife = CurrentLife - BulletDamage;
+    }
     protected void Death()
     {
         Destroy(gameObject);
     }
-    public void GetBulletDamage(float BulletDamage)
+    protected void BossDeath()
     {
-        Life = Life - BulletDamage;
+        Destroy(gameObject);
     }
 }

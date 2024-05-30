@@ -1,16 +1,21 @@
 using Cinemachine;
-using Cinemachine.Utility;
 using System.Collections;
 using UnityEngine;
+using Unity.VisualScripting;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
     //GENERAL
-    [SerializeField] private EventManager eventManager;
+    [SerializeField] private EventManagerData eventManagerData;
 
     //COMPONENTS
     private Rigidbody _myRB;
+
+    //ESCENTIALS
+    [SerializeField] private float MaxLife;
+    [SerializeField] private float CurrentLife;
 
     //MOVEMENT
     [SerializeField] private float Speed;
@@ -60,6 +65,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject LeftArm;
     [SerializeField] private Transform LeftArmTargetPosition;
 
+    [SerializeField] private Color[] LifeColors;
+    [SerializeField] private GameObject LifeIndicator;
+
     //PUBLIC GETTERS
     public Vector3 _bulletDirection { get { return (AimObject.position - BulletSpawner.position).normalized; } private set { } }
     public Transform _transform { get { return transform; } private set { } }
@@ -67,12 +75,23 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
+        CurrentLife = MaxLife;
+        LifeIndicator.GetComponent<MeshRenderer>().material.SetColor("_LifeEmission", LifeColors[LifeColors.Length -1]);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         IsShooting = false;
         IsAiming = false;
         StartCoroutine(SpawnBullets());
     }
+    void Update()
+    {
+        SetLifeIndicatorColor();
+        if (CurrentLife <= 0)
+        {
+            Death();
+        }
+    }
+
     void FixedUpdate()
     {
         //LEVITATION
@@ -222,6 +241,20 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
     }
+    public void GetDamage(float Damage)
+    {
+        CurrentLife = CurrentLife - Damage;
+    }
+    public void SetLifeIndicatorColor()
+    {
+        for (int i = 0; i < LifeColors.Length; i++)
+        {
+            if (CurrentLife >= MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * i))) && CurrentLife < MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * (i + 1)))))
+            {
+                LifeIndicator.GetComponent<MeshRenderer>().material.SetColor("_LifeEmission", Color.Lerp(LifeIndicator.GetComponent<MeshRenderer>().material.GetColor("_LifeEmission"), LifeColors[i], 10f * Time.deltaTime));
+            }
+        }
+    }
     public void LookAtDirection()
     {
         if (Direction != Vector3.zero)
@@ -232,5 +265,9 @@ public class PlayerController : MonoBehaviour
     public void LookAtCenter()
     {
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(_camera.transform.TransformDirection(Vector3.forward).x, transform.TransformDirection(Vector3.forward).y, _camera.transform.TransformDirection(Vector3.forward).z)), RotationSpeed * Time.deltaTime);
+    }
+    public void Death()
+    {
+        GetComponent<PlayerInput>().enabled = false;
     }
 }

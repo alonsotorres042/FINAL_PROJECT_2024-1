@@ -148,4 +148,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventManagerData: {fileID: 11400000, guid: 7cebda5fe1d7cfe4982ea3786590e092, type: 2}
   Speed: 130
-  Damage: 20
+  Damage: 10
+  ParabolicForce: 0
