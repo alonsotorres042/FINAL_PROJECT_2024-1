@@ -39,7 +39,7 @@ public class BossController : EnemyClass
         while (true)
         {
             Instantiate(Henchman, HenchmanSpawner.position, Quaternion.identity);
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
         }
     }
 }

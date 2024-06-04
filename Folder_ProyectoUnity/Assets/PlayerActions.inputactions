@@ -24,6 +24,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "cc6700e3-9db9-4b73-b8e9-3f24bc75e637",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Jump",
                     "type": "Button",
                     "id": "e8ef63c7-f60b-4e0d-a7d5-71c759f0c53b",
@@ -63,6 +72,15 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "40d47182-804c-4cbd-8527-f8eb5df8c47f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Concentration",
+                    "type": "Button",
+                    "id": "b53ef2da-949d-44db-8d75-7bf17db5af87",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -117,7 +135,7 @@
                 {
                     "name": "",
                     "id": "70756a18-9290-440b-8517-3bd8c3b1a568",
-                    "path": "<Keyboard>/p",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -190,6 +208,28 @@
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "55679488-3ed9-428a-838b-ab467eb83831",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Concentration",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3c8821ae-7146-4155-8889-6aa6f5e83345",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

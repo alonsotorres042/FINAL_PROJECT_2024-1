@@ -288,6 +288,7 @@ MonoBehaviour:
   eventManagerData: {fileID: 11400000, guid: 7cebda5fe1d7cfe4982ea3786590e092, type: 2}
   MaxLife: 20
   ChaseSpeed: 20
+  MeleeDamage: 10
 --- !u!4 &7789332012905724238 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3a0e9fbfa3142a4592bd65fd15646b3,

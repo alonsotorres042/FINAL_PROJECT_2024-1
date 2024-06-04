@@ -20,6 +20,5 @@ public class BasicHenchmanController : EnemyClass
     void FixedUpdate()
     {
         StartChasingPlayer();
-        transform.rotation *= Quaternion.Euler(0f, 0f, 10f);
     }
 }

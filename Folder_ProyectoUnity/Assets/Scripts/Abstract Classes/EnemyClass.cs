@@ -12,19 +12,20 @@ public abstract class EnemyClass : MonoBehaviour
 
     //ESCENTIALS
     [SerializeField] protected float MaxLife;
-    protected float CurrentLife;
+    [SerializeField] protected float CurrentLife;
     protected Transform AttackTarget;
 
     //MOVEMENT
     [SerializeField] protected float ChaseSpeed;
 
     //DAMAGE
-    protected float MeleeDamage;
+    [SerializeField] protected float MeleeDamage;
     protected float BulletDamage;
 
     //PUBLIC GETTERS / UI STUFF
     public float _maxLife { get { return MaxLife; } private set { } }
     public float _currentLife { get { return CurrentLife; } private set { } }
+    public float _meleeDamage { get { return MeleeDamage; } private set { } }
 
     protected IEnumerator Shot()
     {

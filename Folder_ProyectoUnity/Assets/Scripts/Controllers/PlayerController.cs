@@ -4,23 +4,33 @@ using UnityEngine;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using System.Runtime.CompilerServices;
 
 public class PlayerController : MonoBehaviour
 {
     //GENERAL
     [SerializeField] private EventManagerData eventManagerData;
+    [SerializeField] private PlayerSoundData soundData;
 
     //COMPONENTS
     private Rigidbody _myRB;
+    private AudioSource _myAS;
 
     //ESCENTIALS
     [SerializeField] private float MaxLife;
     [SerializeField] private float CurrentLife;
 
     //MOVEMENT
+    [SerializeField] private Transform RelativeMovement;
+    private float CurrentSpeed;
     [SerializeField] private float Speed;
     private Vector3 Direction;
-    [SerializeField] private Transform RelativeMovement;
+
+    //SPRINT
+    private bool IsSprinting;
+    [SerializeField] private float SprintSpeed; //<-- Obviously greater than previous Speed;
+    [SerializeField] private float CurrentStamina;
+    [SerializeField] private float MaxStamina;
 
     //ROTATION
     [SerializeField] private float RotationSpeed;
@@ -41,10 +51,12 @@ public class PlayerController : MonoBehaviour
 
     //SHOOTING
     private bool IsShooting;
+    [SerializeField] private float ShotCadency;
     [SerializeField] private Transform BulletSpawner;
     [SerializeField] private Transform ProjectileSpawner;
     [SerializeField] private GameObject Bullet;
     [SerializeField] private GameObject Explosive;
+    private IEnumerator SpawnBulletsRef;
 
     //AIM
     private bool IsAiming;
@@ -60,36 +72,49 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineFreeLook ThirdPersonCamera;
     private Vector3 Velocity = Vector3.zero;
 
+    //CONTRATION
+    private bool IsConcentrated;
+
     //EXTERNAL PARTS
     [SerializeField] private float LeftArmSpeed;
     [SerializeField] private GameObject LeftArm;
     [SerializeField] private Transform LeftArmTargetPosition;
 
     [SerializeField] private Color[] LifeColors;
-    [SerializeField] private GameObject LifeIndicator;
+    [SerializeField] private Material LifeIndicatorMat;
 
     //PUBLIC GETTERS
+    public float _currentLife { get { return CurrentLife; } private set { } }
     public Vector3 _bulletDirection { get { return (AimObject.position - BulletSpawner.position).normalized; } private set { } }
     public Transform _transform { get { return transform; } private set { } }
 
+    void Awake()
+    {
+        CurrentLife = MaxLife;
+    }
     void Start()
     {
         _myRB = GetComponent<Rigidbody>();
-        CurrentLife = MaxLife;
-        LifeIndicator.GetComponent<MeshRenderer>().material.SetColor("_LifeEmission", LifeColors[LifeColors.Length -1]);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        _myAS = GetComponent<AudioSource>();
+        CurrentSpeed = Speed;
+        LifeIndicatorMat.SetColor("_LifeEmission", LifeColors[LifeColors.Length - 1]);
+        LifeIndicatorMat.SetFloat("_EmissionIntensity", MaxStamina);
+        CurrentStamina = MaxStamina;
         IsShooting = false;
         IsAiming = false;
-        StartCoroutine(SpawnBullets());
+    }
+    private void OnEnable()
+    {
+        eventManagerData._EventManager.Defeat += Death;
+    }
+    private void OnDisable()
+    {
+        eventManagerData._EventManager.Defeat -= Death;
     }
     void Update()
     {
         SetLifeIndicatorColor();
-        if (CurrentLife <= 0)
-        {
-            Death();
-        }
+        SetSprint();
     }
 
     void FixedUpdate()
@@ -106,7 +131,7 @@ public class PlayerController : MonoBehaviour
         RelativeMovement.rotation = new Quaternion(0f, _camera.transform.rotation.y, 0f, _camera.transform.rotation.w);
         if (Direction != Vector3.zero)
         {
-            _myRB.velocity = Vector3.Lerp(_myRB.velocity, new Vector3(RelativeMovement.TransformDirection(Direction.normalized).x * Speed, _myRB.velocity.y, RelativeMovement.TransformDirection(Direction.normalized).z * Speed), (RotationSpeed / 2) * Time.deltaTime);
+            _myRB.velocity = Vector3.Lerp(_myRB.velocity, new Vector3(RelativeMovement.TransformDirection(Direction.normalized).x * CurrentSpeed, _myRB.velocity.y, RelativeMovement.TransformDirection(Direction.normalized).z * CurrentSpeed), (RotationSpeed / 2) * Time.deltaTime);
         }
         else
         {
@@ -133,7 +158,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //JUMP
-        if (Physics.Raycast(transform.position, Vector3.down, out JumpHit, JumpRayLenght, JumpLayerMask))  
+        if (Physics.Raycast(transform.position, Vector3.down, out JumpHit, JumpRayLenght, JumpLayerMask))
         {
             Debug.DrawRay(transform.position, Vector3.down * JumpHit.distance, Color.red);
             CurrentJumps = MaxJumps;
@@ -158,7 +183,7 @@ public class PlayerController : MonoBehaviour
         // LEFTARM ROTATION
         if (IsShooting == true)
         {
-            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 30f  * Time.deltaTime);
+            LeftArm.transform.rotation = Quaternion.Slerp(LeftArm.transform.rotation, Quaternion.LookRotation(AimObject.position - LeftArm.transform.position), 30f * Time.deltaTime);
         }
         else if (IsShooting == false)
         {
@@ -168,9 +193,36 @@ public class PlayerController : MonoBehaviour
         //LEFT ARM POSITION
         LeftArm.transform.position = Vector3.Slerp(LeftArm.transform.position, LeftArmTargetPosition.position, LeftArmSpeed * Time.deltaTime);
     }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Boss")
+        {
+            if (collision.gameObject.tag == "Enemy")
+            {
+                GetDamage(collision.gameObject.GetComponent<EnemyClass>()._meleeDamage);
+            }
+            else if (collision.gameObject.tag == "Boss")
+            {
+                GetDamage(collision.gameObject.GetComponentInParent<EnemyClass>()._meleeDamage);
+
+            }
+            collision.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3((transform.position - collision.transform.position).x, 3.5f, (transform.position - collision.transform.position).z) * 250f);
+        }
+    }
     public void OnMovement(InputAction.CallbackContext context)
     {
         Direction = context.ReadValue<Vector3>();
+    }
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            IsSprinting = true;
+        }
+        else if (context.canceled)
+        {
+            IsSprinting = false;
+        }
     }
     public void OnJump(InputAction.CallbackContext context)
     {
@@ -178,11 +230,12 @@ public class PlayerController : MonoBehaviour
         {
             if (CanJump && CurrentJumps > 0)
             {
+                _myAS.PlayOneShot(soundData.Jump);
                 _myRB.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
                 StartCoroutine(ResetRayCast());
                 CurrentJumps--;
             }
-            else if(CurrentJumps <= 0)
+            else if (CurrentJumps <= 0)
             {
                 CanJump = false;
             }
@@ -208,11 +261,17 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            IsShooting = true;
+            if (eventManagerData._UIManager._isPaused == false)
+            {
+                IsShooting = true;
+                SetSpawnBulletsReferene(SpawnBullets(ShotCadency));
+                StartCoroutine(SpawnBulletsRef);
+            }
         }
         else if (context.canceled)
         {
             IsShooting = false;
+            StopCoroutine(SpawnBulletsRef);
         }
     }
     public void OnLaunchExplosive(InputAction.CallbackContext context)
@@ -222,36 +281,82 @@ public class PlayerController : MonoBehaviour
             Instantiate(Explosive, ProjectileSpawner.position, transform.rotation);
         }
     }
-    public IEnumerator ResetRayCast()
+    public void OnConcentration(InputAction.CallbackContext context)
     {
-        JumpRayLenght = 0;
-        yield return new WaitForSeconds(0.5f);
-        JumpRayLenght = 2;
-        StopCoroutine(ResetRayCast());
+        if (context.performed)
+        {
+            IsConcentrated = true;
+            SetConcentration();
+        }
+        else if (context.canceled)
+        {
+            IsConcentrated = false;
+            SetConcentration();
+        }
     }
-    public IEnumerator SpawnBullets()
+    public IEnumerator SpawnBullets(float cadency)
     {
         while (true)
         {
             if (IsShooting == true)
             {
+                _myAS.PlayOneShot(soundData.Shot);
                 GameObject CurrentBullet = Instantiate(Bullet, BulletSpawner.transform.position, transform.rotation);
-                yield return new WaitForSeconds(0.33f);
+                yield return new WaitForSeconds(cadency);
             }
-            yield return null;
         }
+    }
+    public IEnumerator ResetRayCast()
+    {
+        JumpRayLenght = 0;
+        yield return new WaitForSeconds(0.5f);
+        JumpRayLenght = 0.5f;
+        StopCoroutine(ResetRayCast());
+    }
+    public void SetSpawnBulletsReferene(IEnumerator spawnBullets)
+    {
+        SpawnBulletsRef = spawnBullets;
     }
     public void GetDamage(float Damage)
     {
+        _myAS.PlayOneShot(soundData.Hurt);
         CurrentLife = CurrentLife - Damage;
     }
     public void SetLifeIndicatorColor()
     {
         for (int i = 0; i < LifeColors.Length; i++)
         {
-            if (CurrentLife >= MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * i))) && CurrentLife < MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * (i + 1)))))
+            if (CurrentLife <= 0)
             {
-                LifeIndicator.GetComponent<MeshRenderer>().material.SetColor("_LifeEmission", Color.Lerp(LifeIndicator.GetComponent<MeshRenderer>().material.GetColor("_LifeEmission"), LifeColors[i], 10f * Time.deltaTime));
+                LifeIndicatorMat.SetColor("_LifeEmission", Color.Lerp(LifeIndicatorMat.GetColor("_LifeEmission"), LifeColors[0], 10f * Time.deltaTime));
+            }
+            else if (CurrentLife >= MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * i))) && CurrentLife < MaxLife - ((MaxLife - ((MaxLife / LifeColors.Length) * (i + 1)))))
+            {
+                LifeIndicatorMat.SetColor("_LifeEmission", Color.Lerp(LifeIndicatorMat.GetColor("_LifeEmission"), LifeColors[i], 10f * Time.deltaTime));
+            }
+        }
+    }
+    public void SetConcentration()
+    {
+        if (eventManagerData._UIManager._isPaused == false)
+        {
+            if (IsAiming)
+            {
+                if (IsConcentrated)
+                {
+                    Time.timeScale = 0.25f;
+                    Time.fixedDeltaTime = Time.timeScale * 0.02f;
+                }
+                else
+                {
+                    Time.timeScale = 1f;
+                    Time.fixedDeltaTime = 0.02f;
+                }
+            }
+            else
+            {
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;
             }
         }
     }
@@ -268,6 +373,20 @@ public class PlayerController : MonoBehaviour
     }
     public void Death()
     {
+        _myAS.PlayOneShot(soundData.Death);
         GetComponent<PlayerInput>().enabled = false;
+    }
+    public void SetSprint()
+    {
+        if (IsSprinting)
+        {
+            CurrentSpeed = Mathf.Lerp(CurrentSpeed, SprintSpeed, 10 * Time.deltaTime);
+            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), 0f, 0.5f * Time.deltaTime));
+        }
+        else
+        {
+            CurrentSpeed = Mathf.Lerp(CurrentSpeed, Speed, 10 * Time.deltaTime);
+            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), MaxStamina, 0.1f * Time.deltaTime));
+        }
     }
 }

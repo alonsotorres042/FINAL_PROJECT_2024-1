@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 635d844f838b17f43a6e10db3d2ba7e3, type: 3}
+  m_Name: PlayerSoundData
+  m_EditorClassIdentifier: 
+  Jump: {fileID: 8300000, guid: 0ade45853cc779e4c9ae4df91b324804, type: 3}
+  Shot: {fileID: 8300000, guid: a3a10ca72a7544241b475f466cb8c0fc, type: 3}
+  Hurt: {fileID: 8300000, guid: e12d95b8208363d448b58edf00847380, type: 3}
+  Death: {fileID: 8300000, guid: 4bc9ffca148ced648aaf943e3b7acfc2, type: 3}
