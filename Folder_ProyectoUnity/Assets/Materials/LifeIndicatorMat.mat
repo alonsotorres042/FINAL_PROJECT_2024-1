@@ -38,14 +38,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EmissionIntensity: 50
+    - _EmissionIntensity: 24.155035
     - _Metallic: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
     m_Colors:
     - _LifeColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LifeEmission: {r: 0.9999998, g: 1.7e-44, b: 0, a: 0}
+    - _LifeEmission: {r: 0.9999996, g: 3.4e-44, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &3691254205745101580
 MonoBehaviour:

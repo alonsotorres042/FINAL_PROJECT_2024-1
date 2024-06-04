@@ -243,8 +243,15 @@ public class PlayerController : MonoBehaviour
     }
     public void GetMousePosition(InputAction.CallbackContext context)
     {
-        MousePositionOnScreen = context.ReadValue<Vector2>();
-        MousePositionOnWorld = Camera.main.ScreenToWorldPoint(MousePositionOnScreen);
+        try
+        {
+            MousePositionOnScreen = context.ReadValue<Vector2>();
+            MousePositionOnWorld = Camera.main.ScreenToWorldPoint(MousePositionOnScreen);
+        }
+        catch(System.NullReferenceException)
+        {
+
+        }
     }
     public void OnAim(InputAction.CallbackContext context)
     {
@@ -271,7 +278,14 @@ public class PlayerController : MonoBehaviour
         else if (context.canceled)
         {
             IsShooting = false;
-            StopCoroutine(SpawnBulletsRef);
+            try
+            {
+                StopCoroutine(SpawnBulletsRef);
+            }
+            catch (System.NullReferenceException)
+            {
+
+            }
         }
     }
     public void OnLaunchExplosive(InputAction.CallbackContext context)

@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private EventManagerData eventManagerData;
 
     //GENERAL
+    [SerializeField] private GameObject GeneralHolder;
     [SerializeField] private Slider BossLife;
 
     //PAUSE
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject PausePanel;
 
     //VOLUME|
+    [SerializeField] private GameObject VolumeHolder;
     [SerializeField] private Slider Master;
     [SerializeField] private Slider Music;
     [SerializeField] private Slider SFX;
@@ -33,10 +35,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(eventManagerData._ScenesManager.GetCurrentScene() == "Game")
-        {
-            SetGameSettings();
-        }
+        SetGameSettings();
         SetInitalSlidersValues();
         Master.onValueChanged.AddListener(delegate { eventManagerData._VolumeData.UpdateValue("Master", _master); });
         Music.onValueChanged.AddListener(delegate { eventManagerData._VolumeData.UpdateValue("Music", _music); });
@@ -68,12 +67,6 @@ public class UIManager : MonoBehaviour
     {
         PausePanel.GetComponent<RectTransform>().position = Vector3.Lerp(PausePanel.GetComponent<RectTransform>().position, target.position, 20f * Time.deltaTime);
     }
-    public void SetInitalSlidersValues()
-    {
-        Master.value = eventManagerData._VolumeData.Master;
-        Music.value = eventManagerData._VolumeData.Music;
-        SFX.value = eventManagerData._VolumeData.SFX;
-    }
     public void Pause(bool isPaused)
     {
         if (isPaused)
@@ -89,6 +82,27 @@ public class UIManager : MonoBehaviour
             Cursor.visible = false;
             PauseHolder.SetActive(false);
             Time.timeScale = 1;
+        }
+    }
+    public void SetInitalSlidersValues()
+    {
+        Master.value = eventManagerData._VolumeData.Master;
+        Music.value = eventManagerData._VolumeData.Music;
+        SFX.value = eventManagerData._VolumeData.SFX;
+    }
+    public void EnableVolumeSetting()
+    {
+        if(VolumeHolder.activeSelf)
+        {
+            PausePanel.GetComponent<RectTransform>().position = new Vector3(PausePanel.GetComponent<RectTransform>().position.x + 150, PausePanel.GetComponent<RectTransform>().position.y, PausePanel.GetComponent<RectTransform>().position.z);
+            VolumeHolder.SetActive(false);
+            GeneralHolder.SetActive(true);
+        }
+        else
+        {
+            PausePanel.GetComponent<RectTransform>().position = new Vector3(PausePanel.GetComponent<RectTransform>().position.x - 150, PausePanel.GetComponent<RectTransform>().position.y, PausePanel.GetComponent<RectTransform>().position.z);
+            VolumeHolder.SetActive(true);
+            GeneralHolder.SetActive(false);
         }
     }
     public void SetGameSettings()
