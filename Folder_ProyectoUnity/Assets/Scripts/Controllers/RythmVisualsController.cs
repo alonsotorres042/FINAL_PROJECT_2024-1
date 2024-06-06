@@ -4,30 +4,28 @@ public class RythmVisualsController : MonoBehaviour
 {
     [SerializeField] private Transform Bass;
     [SerializeField] private Transform Other;
-    private bool IsOnBass;
+    private bool IsOnBeat;
  
     private IEnumerator VisualBeatRef;
     // Start is called before the first frame update
     void Start()
     {
-        VisualBeatRef = VisualBeat(87f);
-        //StartCoroutine(VisualBeatRef);
+        VisualBeatRef = VisualBeat(Other, 87f);
+        StartCoroutine(VisualBeatRef);
     }
 
     // Update is called once per frame
     void Update()
     {
-        VisualBehaviour(Bass, 0.05f, "Left");
-        VisualBehaviour(Other, 0.05f, "Right");
+        VisualBehaviour(Bass, 0.025f, "Left");
+        VisualBehaviour(Other, 0.025f, "Right");
     }
-    public IEnumerator VisualBeat(float bpm)
+    public IEnumerator VisualBeat(Transform victim, float bpm)
     {
         while (true)
         {
-            IsOnBass = true;
-            yield return new WaitForSeconds((60f / bpm) - ((60f / bpm) / 10f));
-            IsOnBass = false;
-            yield return new WaitForSeconds((60f / bpm) / 10f);
+            victim.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+            yield return new WaitForSeconds(60f / bpm);
         }
     }
     public void VisualBehaviour(Transform victim, float RotationSpeed, string direction)

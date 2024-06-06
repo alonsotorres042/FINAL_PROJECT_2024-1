@@ -2,7 +2,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine;
-using Unity.VisualScripting;
 using System.Collections;
 
 public class MainMenuController : MonoBehaviour
@@ -59,11 +58,7 @@ public class MainMenuController : MonoBehaviour
             else
             {
                 iter++;
-                if(iter % 2 == 0)
-                {
-                    rythmVisualsController.DecreaseOtherScale();
-
-                }
+                //rythmVisualsController.DecreaseOtherScale();
             }
         }
     }
