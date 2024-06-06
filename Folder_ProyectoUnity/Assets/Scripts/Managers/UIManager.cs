@@ -28,18 +28,12 @@ public class UIManager : MonoBehaviour
 
     //PUBLIC GETTERS
     public bool _isPaused { get { return IsPaused; } private set { } }
-    public float _master { get { return Master.value; } private set { } }
-    public float _music { get { return Music.value; } private set { } }
-    public float _sfx { get { return SFX.value; } private set { } }
 
     // Start is called before the first frame update
     void Start()
     {
         SetGameSettings();
-        SetInitalSlidersValues();
-        Master.onValueChanged.AddListener(delegate { eventManagerData._VolumeData.UpdateValue("Master", _master); });
-        Music.onValueChanged.AddListener(delegate { eventManagerData._VolumeData.UpdateValue("Music", _music); });
-        SFX.onValueChanged.AddListener(delegate { eventManagerData._VolumeData.UpdateValue("SFX", _sfx); });
+        eventManagerData._VolumeData.SetInitalSlidersValues(Master, Music, SFX);
     }
 
     // Update is called once per frame
@@ -63,10 +57,6 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    public void RectMove(RectTransform Victim, RectTransform target)
-    {
-        PausePanel.GetComponent<RectTransform>().position = Vector3.Lerp(PausePanel.GetComponent<RectTransform>().position, target.position, 20f * Time.deltaTime);
-    }
     public void Pause(bool isPaused)
     {
         if (isPaused)
@@ -83,12 +73,6 @@ public class UIManager : MonoBehaviour
             PauseHolder.SetActive(false);
             Time.timeScale = 1;
         }
-    }
-    public void SetInitalSlidersValues()
-    {
-        Master.value = eventManagerData._VolumeData.Master;
-        Music.value = eventManagerData._VolumeData.Music;
-        SFX.value = eventManagerData._VolumeData.SFX;
     }
     public void EnableVolumeSetting()
     {
