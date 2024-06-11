@@ -53,7 +53,7 @@ public abstract class EnemyClass : MonoBehaviour
     }
     protected void Death()
     {
-        Destroy(gameObject);
+        Destroy(this.gameObject);
     }
     protected void BossDeath()
     {

@@ -1,21 +1,17 @@
-using UnityEngine;
-using System;
-using Unity.Collections;
 using DG.Tweening;
-using System.Collections;
 
 public class KamikazeHenchmanController : EnemyClass
 {
     // Start is called before the first frame update
     void Awake()
     {
-        CurrentLife = MaxLife;
         AttackTarget = eventManagerData.Player.transform;
+        CurrentLife = MaxLife;
     }
     void Start()
     {
         DOTween.Init();
-        StartCoroutine(InitialBehaviour());
+        transform.DOMove(AttackTarget.position, 1.5f).SetEase(Ease.InOutElastic);
     }
 
     // Update is called once per frame
@@ -25,15 +21,5 @@ public class KamikazeHenchmanController : EnemyClass
         {
             Death();
         }
-    }
-    public IEnumerator InitialBehaviour()
-    {
-        float time = 0;
-        while (time < 2.5f)
-        {
-            transform.position += new Vector3(0f, 0.025f, 0f);
-            yield return null;
-        }
-        transform.DOMove(AttackTarget.position, 1.5f).SetEase(Ease.InOutElastic);
     }
 }

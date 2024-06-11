@@ -27,6 +27,7 @@ public class MainMenuController : MonoBehaviour
     {
         Particle1.Play();
         Particle2.Play();
+            
         audioSource = GetComponent<AudioSource>();
         volumeData.SetInitalSlidersValues(Master, Music, SFX);
     }
@@ -34,43 +35,11 @@ public class MainMenuController : MonoBehaviour
     void Update()
     {
         volumeData.SetVolumeValues(audioMixer);
-
-        //TESTING
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-
-<<<<<<< HEAD
-=======
-        audioSource.GetSpectrumData(Spectrum, 0, FFTWindow.Rectangular);
-        for(int i = 0; i < Spectrum.Length; i++)
-        {
-            if (Spectrum[i] * 3 >= LimitFrequency)
-            {
-                iter = 0;
-                rythmVisualsController.DecreaseBassScale();
-            }
-            else
-            {
-                iter++;
-                //rythmVisualsController.DecreaseOtherScale();
-            }
-        }
     }
     //SCENE C-A
     public void SceneToGo(string scene)
     {
         SceneManager.LoadScene(scene);
-    }
-    //AUDIO C-A
-    public void MusicPlayer()
-    {
-        if (!audioSource.isPlaying)
-        {
-            int rnd = Random.Range(0, musicData.MusicArray.Length - 1);
-            audioSource.clip = musicData.MusicArray[rnd];
-            audioSource.Play();
->>>>>>> b304648aafcc9abcae60f1e408e83da850b64941
-        }
     }
     //UI C-A
     public void EnableAudioSetting()
@@ -84,5 +53,4 @@ public class MainMenuController : MonoBehaviour
             AudioSettingsHolder.SetActive(true);
         }
     }
-    //AUDIO C-A
 }
