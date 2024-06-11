@@ -8,7 +8,8 @@ public class BossController : EnemyClass
 {
 
     [SerializeField] private Transform HenchmanSpawner;
-    [SerializeField] private GameObject Henchman;
+    [SerializeField] private GameObject HenchmanBasic;
+    [SerializeField] private GameObject HenchmanKamikaze;
     [SerializeField] private GameObject Triceratops;
 
     void Awake()
@@ -19,7 +20,8 @@ public class BossController : EnemyClass
     {
         AttackTarget = eventManagerData.Player._transform;
         rb = Triceratops.GetComponent<Rigidbody>();
-        StartCoroutine(SpawnHenchmen());
+        StartCoroutine(SpawnBasicHenchmen());
+        StartCoroutine(SpawnKamikazeHenchmen());
     }
     private void OnEnable()
     {
@@ -34,12 +36,20 @@ public class BossController : EnemyClass
         BossChasingPlayer();
     }
 
-    public IEnumerator SpawnHenchmen()
+    public IEnumerator SpawnBasicHenchmen()
     {
         while (true)
         {
-            Instantiate(Henchman, HenchmanSpawner.position, Quaternion.identity);
+            Instantiate(HenchmanBasic, HenchmanSpawner.position, Quaternion.identity);
             yield return new WaitForSeconds(2f);
+        }
+    }
+    public IEnumerator SpawnKamikazeHenchmen()
+    {
+        while (true)
+        {
+            Instantiate(HenchmanKamikaze, HenchmanSpawner.position, Quaternion.identity);
+            yield return new WaitForSeconds(2.5f);
         }
     }
 }

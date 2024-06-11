@@ -1,11 +1,7 @@
 using Cinemachine;
 using System.Collections;
 using UnityEngine;
-using Unity.VisualScripting;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
-using System.Runtime.CompilerServices;
-
 public class PlayerController : MonoBehaviour
 {
     //GENERAL
@@ -374,6 +370,19 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    public void SetSprint()
+    {
+        if (IsSprinting)
+        {
+            CurrentSpeed = Mathf.Lerp(CurrentSpeed, SprintSpeed, 10 * Time.deltaTime);
+            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), 0f, 0.5f * Time.deltaTime));
+        }
+        else
+        {
+            CurrentSpeed = Mathf.Lerp(CurrentSpeed, Speed, 10 * Time.deltaTime);
+            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), MaxStamina, 0.1f * Time.deltaTime));
+        }
+    }
     public void LookAtDirection()
     {
         if (Direction != Vector3.zero)
@@ -389,18 +398,5 @@ public class PlayerController : MonoBehaviour
     {
         _myAS.PlayOneShot(soundData.Death);
         GetComponent<PlayerInput>().enabled = false;
-    }
-    public void SetSprint()
-    {
-        if (IsSprinting)
-        {
-            CurrentSpeed = Mathf.Lerp(CurrentSpeed, SprintSpeed, 10 * Time.deltaTime);
-            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), 0f, 0.5f * Time.deltaTime));
-        }
-        else
-        {
-            CurrentSpeed = Mathf.Lerp(CurrentSpeed, Speed, 10 * Time.deltaTime);
-            LifeIndicatorMat.SetFloat("_EmissionIntensity", Mathf.Lerp(LifeIndicatorMat.GetFloat("_EmissionIntensity"), MaxStamina, 0.1f * Time.deltaTime));
-        }
     }
 }

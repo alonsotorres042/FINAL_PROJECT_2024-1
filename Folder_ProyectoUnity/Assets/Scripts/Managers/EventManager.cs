@@ -44,10 +44,14 @@ public class EventManager : MonoBehaviour
         }
         if(Player._currentLife <= 0)
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             Defeat?.Invoke();
         }
         else if(Triceratops._currentLife <= 0)
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             Victory?.Invoke();
         }
     }

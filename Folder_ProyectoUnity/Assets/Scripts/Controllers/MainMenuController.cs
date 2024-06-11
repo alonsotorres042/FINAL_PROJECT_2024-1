@@ -8,18 +8,10 @@ public class MainMenuController : MonoBehaviour
 {
     //DATA
     [SerializeField] private VolumeData volumeData;
-    [SerializeField] private MusicData musicData;
 
     //AUDIO
     [SerializeField] private AudioMixer audioMixer;
-    [SerializeField] private RythmVisualsController rythmVisualsController;
     private AudioSource audioSource;
-
-
-    private float[] Spectrum = new float[256];
-    private float LimitFrequency;
-
-    float iter = 0;
 
     //UI
     [SerializeField] private Slider Master;
@@ -27,26 +19,28 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Slider SFX;
     [SerializeField] private GameObject AudioSettingsHolder;
 
+    //PARTICLES
+    [SerializeField] private ParticleSystem Particle1;
+    [SerializeField] private ParticleSystem Particle2;
+
     void Start()
     {
+        Particle1.Play();
+        Particle2.Play();
         audioSource = GetComponent<AudioSource>();
         volumeData.SetInitalSlidersValues(Master, Music, SFX);
-
-        //TESTING
-        audioSource.clip = musicData.MusicArray[6];
-        audioSource.Play();
     }
 
     void Update()
     {
-        //MusicPlayer();  <- Commented for testing.
         volumeData.SetVolumeValues(audioMixer);
 
-        if (audioSource.clip == musicData.MusicArray[6])
+        //TESTING
+        if (Input.GetKeyDown(KeyCode.P))
         {
-            LimitFrequency = 2.5f;
-        }
 
+<<<<<<< HEAD
+=======
         audioSource.GetSpectrumData(Spectrum, 0, FFTWindow.Rectangular);
         for(int i = 0; i < Spectrum.Length; i++)
         {
@@ -75,6 +69,7 @@ public class MainMenuController : MonoBehaviour
             int rnd = Random.Range(0, musicData.MusicArray.Length - 1);
             audioSource.clip = musicData.MusicArray[rnd];
             audioSource.Play();
+>>>>>>> b304648aafcc9abcae60f1e408e83da850b64941
         }
     }
     //UI C-A
@@ -89,4 +84,5 @@ public class MainMenuController : MonoBehaviour
             AudioSettingsHolder.SetActive(true);
         }
     }
+    //AUDIO C-A
 }

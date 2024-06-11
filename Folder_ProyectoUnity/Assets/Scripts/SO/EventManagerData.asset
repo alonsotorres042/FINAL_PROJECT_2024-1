@@ -12,3 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87f930717fe4cc94ca4aefe7350cc811, type: 3}
   m_Name: EventManagerData
   m_EditorClassIdentifier: 
+  _VolumeData: {fileID: 11400000, guid: 5de5c407d7a4c5e4e970b2ce8b310588, type: 2}
+  _EventManager: {fileID: 0}
+  _UIManager: {fileID: 0}
+  _AudioManager: {fileID: 0}
+  _ScenesManager: {fileID: 0}
+  Player: {fileID: 0}
+  Triceratops: {fileID: 0}
