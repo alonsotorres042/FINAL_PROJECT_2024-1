@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MusicData", menuName = "ScriptableObjects/MusicData", order = 3)]
 public class MusicData : ScriptableObject
 {
+    private bool OnDrums = false;
     public void FrequencyInteratcion(Song song, AudioSource[] band, Transform[] rythmVisuals, float[][] stemSpectrums)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < band.Length; i++)
         {
             band[i].GetSpectrumData(stemSpectrums[i], 0, FFTWindow.Rectangular);
             for (int j = 0; j < stemSpectrums[i].Length; j++)
@@ -15,7 +17,12 @@ public class MusicData : ScriptableObject
                 if (stemSpectrums[i][j] * 3 >= song.MinFrequencies[i])
                 {
                     ModifyScale(rythmVisuals[i], stemSpectrums[i][j] * 3);
+                    if(i == 0)
+                    {
+                        OnDrums = true;
+                    }
                 }
+                OnDrums = false;
             }
             if (i % 2 == 0)
             {
@@ -49,12 +56,12 @@ public class MusicData : ScriptableObject
     }
     public void ModifyScale(Transform victim, float scale)
     {
-        scale = scale / 100f;
+        scale = scale / 40f;
         victim.localScale = victim.localScale + new Vector3(scale, scale, 0);
     }
     public void MusicPlayer(Song song, AudioSource[] band)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < band.Length; i++)
         {
             band[i].clip = song.Stems[i];
             band[i].Play();
@@ -62,7 +69,7 @@ public class MusicData : ScriptableObject
     }
     public void StopMusicPlayer(AudioSource[] band)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < band.Length; i++)
         {
             band[i].Stop();
         }

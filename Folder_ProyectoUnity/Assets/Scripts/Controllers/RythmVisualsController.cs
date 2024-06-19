@@ -66,6 +66,10 @@ public class RythmVisualsController : MonoBehaviour
             {
                 CurrentSong = MenuSongArray[Random.Range(0, MenuSongArray.Length)];
             }
+            else if (scenesManager.GetCurrentScene() == "Game")
+            {
+                CurrentSong = MenuSongArray[Random.Range(0, MenuSongArray.Length)];
+            }
             musicData.MusicPlayer(CurrentSong, Band);
         }
 

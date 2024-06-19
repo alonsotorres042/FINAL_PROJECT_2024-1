@@ -28,10 +28,12 @@ public class ScenesManager : MonoBehaviour
     }
     public void GoToScene(string scene)
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(scene);
     }
     public void GoToMenu()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
     }
     public string GetCurrentScene()
