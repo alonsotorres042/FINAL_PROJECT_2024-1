@@ -43,6 +43,10 @@ public class RythmVisualsController : MonoBehaviour
     [SerializeField] private AudioClip[] BehindTheFallen_Array;
     private Song BehindTheFallen_Song;
 
+    [Header("Gameplaye Song Array")]
+    [SerializeField] private AudioClip[] newSonog_Array;
+    private Song newSonog_Song;
+
     void Awake()
     {
         StemSpectrums = new float[][] { DrumsSpectrum, BassSpectrum, SynthsSpectrum, VocalsSpectrum };
@@ -70,13 +74,34 @@ public class RythmVisualsController : MonoBehaviour
             {
                 CurrentSong = MenuSongArray[Random.Range(0, MenuSongArray.Length)];
             }
-            musicData.MusicPlayer(CurrentSong, Band);
+            try
+            {
+                musicData.MusicPlayer(CurrentSong, Band);
+            }
+            catch
+            {
+
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.O))
         {
-            musicData.StopMusicPlayer(Band);
+            try
+            {
+                musicData.StopMusicPlayer(Band);
+            }
+            catch
+            {
+
+            }
         }
-        musicData.FrequencyInteratcion(CurrentSong, Band, RythmVisuals, StemSpectrums);
+        try
+        {
+            musicData.FrequencyInteratcion(CurrentSong, Band, RythmVisuals, StemSpectrums);
+        }
+        catch
+        {
+
+        }
     }
 }
