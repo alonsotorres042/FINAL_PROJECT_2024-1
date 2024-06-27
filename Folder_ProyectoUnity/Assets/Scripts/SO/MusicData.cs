@@ -17,7 +17,7 @@ public class MusicData : ScriptableObject
                 if (stemSpectrums[i][j] * 3 >= song.MinFrequencies[i])
                 {
                     ModifyScale(rythmVisuals[i], stemSpectrums[i][j] * 3);
-                    if (i == 0)
+                    if(i == 0)
                     {
                         OnDrums = true;
                     }
@@ -56,7 +56,7 @@ public class MusicData : ScriptableObject
     }
     public void ModifyScale(Transform victim, float scale)
     {
-        scale = scale / 60f;
+        scale = scale / 40f;
         victim.localScale = victim.localScale + new Vector3(scale, scale, 0);
     }
     public void MusicPlayer(Song song, AudioSource[] band)
