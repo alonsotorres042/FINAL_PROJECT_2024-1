@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
+using UnityEditor.AnimatedValues;
 
 public class Song
 {
@@ -7,6 +9,11 @@ public class Song
     {
         Stems = new AudioClip[] {drums, bass, synths, vocals};
         MinFrequencies = new float[] {drumsFrequency, bassFrequency, synthsFrequency, vocalFrequency};
+    }
+    public Song(AudioClip drums, float drumsFrequency, AudioClip bandSource, float bandSourceFrequency)
+    {
+        Stems = new AudioClip[] { drums, bandSource};
+        MinFrequencies = new float[] { drumsFrequency, bandSourceFrequency };
     }
     public AudioClip[] Stems;
     public float[] MinFrequencies;
@@ -20,6 +27,7 @@ public class RythmVisualsController : MonoBehaviour
     //ARRAYS
     [SerializeField] private Transform[] RythmVisuals;
     [SerializeField] private AudioSource[] Band;
+    [SerializeField] private AudioSource BandSource;
 
     //SPECTRUMS
     private float[] DrumsSpectrum = new float[256];
@@ -28,10 +36,10 @@ public class RythmVisualsController : MonoBehaviour
     private float[] VocalsSpectrum = new float[256];
     public float[][] StemSpectrums;
 
-
     //SONG CENTER
     private Song CurrentSong;
     private Song[] MenuSongArray;
+    private Song[] GameSongArray;
 
     [Header("Menu Song Arrays")]
     [SerializeField] private AudioClip[] PrettyCvnt_Array;
@@ -42,6 +50,10 @@ public class RythmVisualsController : MonoBehaviour
     private Song TheAwakening_Song;
     [SerializeField] private AudioClip[] BehindTheFallen_Array;
     private Song BehindTheFallen_Song;
+
+    [Header("Menu Song Arrays")]
+    [SerializeField] private AudioClip[] BloodyTears_Array;
+    private Song BloodyTears_Song;
 
     void Awake()
     {
@@ -54,6 +66,17 @@ public class RythmVisualsController : MonoBehaviour
         BehindTheFallen_Song = new Song(BehindTheFallen_Array[0], 0.05f, BehindTheFallen_Array[1], 0.0025f, BehindTheFallen_Array[2], 0.075f, BehindTheFallen_Array[3], 0.025f);
 
         MenuSongArray = new Song[] { PrettyCvnt_Song, ItsGraduationRight_Song, TheAwakening_Song, BehindTheFallen_Song };
+
+        //---Game--///
+        try
+        {
+            BloodyTears_Song = new Song(BloodyTears_Array[0], 0.05f, BloodyTears_Array[1], 0.0025f);
+        }
+        catch
+        {
+
+        }
+        GameSongArray = new Song[] { BloodyTears_Song};
     }
 
     // Update is called once per frame
@@ -68,12 +91,20 @@ public class RythmVisualsController : MonoBehaviour
             }
             else if (scenesManager.GetCurrentScene() == "Game")
             {
-                CurrentSong = MenuSongArray[Random.Range(0, MenuSongArray.Length)];
+                //CurrentSong = GameSongArray[Random.Range(0, GameSongArray.Length)];
+                CurrentSong = GameSongArray[0];
             }
-            musicData.MusicPlayer(CurrentSong, Band);
+            try
+            {
+                musicData.MusicPlayer(CurrentSong, Band, BandSource);
+            }
+            catch
+            {
+
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.O))
         {
             musicData.StopMusicPlayer(Band);
         }

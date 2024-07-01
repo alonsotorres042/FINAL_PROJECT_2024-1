@@ -9,6 +9,7 @@ public class ScenesManager : MonoBehaviour
         try
         {
             eventManagerData._EventManager.Victory += GoToMenu;
+            eventManagerData._EventManager.Defeat += GoToMenu;
         }
         catch (System.NullReferenceException)
         {
@@ -20,6 +21,7 @@ public class ScenesManager : MonoBehaviour
         try
         {
             eventManagerData._EventManager.Victory -= GoToMenu;
+            eventManagerData._EventManager.Defeat -= GoToMenu;
         }
         catch (System.NullReferenceException)
         {

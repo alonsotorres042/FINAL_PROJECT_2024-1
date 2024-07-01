@@ -56,15 +56,24 @@ public class MusicData : ScriptableObject
     }
     public void ModifyScale(Transform victim, float scale)
     {
-        scale = scale / 40f;
+        scale = scale / 75f;
         victim.localScale = victim.localScale + new Vector3(scale, scale, 0);
     }
-    public void MusicPlayer(Song song, AudioSource[] band)
+    public void MusicPlayer(Song song, AudioSource[] band, AudioSource bandSource)
     {
         for (int i = 0; i < band.Length; i++)
         {
             band[i].clip = song.Stems[i];
             band[i].Play();
+        }
+        try
+        {
+            bandSource.clip = song.Stems[1];
+            bandSource.Play();
+        }
+        catch
+        {
+
         }
     }
     public void StopMusicPlayer(AudioSource[] band)
